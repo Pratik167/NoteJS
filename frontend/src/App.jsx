@@ -5,14 +5,14 @@ import AuthPage from './Components/AuthPage';
 
 
 import Home from './Pages/Home';
-import Hire from './Pages/Hire';
+import Notes from './Pages/Notes';
 import Blog from './Pages/Blog';
 import About from './Pages/About';
 import Contact from './Pages/Contact';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
-import Upload from './Pages/Upload';
-import Notes from './Pages/Notes'
+import Upload from "./Pages/Upload";
+
 function App() {
   return (
     <Router>
@@ -22,14 +22,13 @@ function App() {
         <main className="pt-20 px-6">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/hire" element={<Hire />} />
+            <Route path="/notes" element={<Notes />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/upload" element={<Upload />} />
-            <Route path="/notes" element={<Notes />} />
           </Routes>
         </main>
       </div>

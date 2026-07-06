@@ -85,7 +85,7 @@ const AuthPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-full max-w-md">
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden w-[400px]">
                 <div className="relative">
                     <div className="absolute inset-0 h-24 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
                     <div className="relative flex justify-center items-center h-24">
@@ -95,7 +95,7 @@ const AuthPage = () => {
                     </div>
                 </div>
 
-                <div className="p-6">
+                <div className="p-8">
                     <form onSubmit={handleSubmit}>
                         {!isLogin && (
                             <div className="mb-4">
