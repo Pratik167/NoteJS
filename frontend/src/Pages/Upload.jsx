@@ -120,7 +120,7 @@ const Upload = () => {
                         onChange={handleChange}
                         className="w-full border rounded-lg p-3"
                     />
-
+                    <div>
                     <label className="cursor-pointer bg-blue-600 text-white px-2 py-3 rounded-lg hover:bg-blue-700 inline-block">
                 📄 Choose PDF
                     <input
@@ -129,7 +129,16 @@ const Upload = () => {
                         onChange={handleFile}
                         className="hidden"
                     />
-</label>
+                    </label>
+                    {form.file && (
+                        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p className="text-green-700 font-medium">
+                                ✅ {form.file.name}
+                            </p>
+                        </div>
+                    )}
+                    </div>
+
 
                     <button
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition"
