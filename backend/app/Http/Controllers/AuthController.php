@@ -15,19 +15,23 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:users,name',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
-        ]); 
+            'profile_picture' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+        ],
+        [
+            'name.unique' => 'This username is already taken.',
+            'email.unique' => 'An account with this email already exists.',
+        ]
+    ); 
         $image_path="images/default-avatar.png";
         if($request->hasFile('profile_picture')){
             $image_path=$request->file('profile_picture')->store('profile_picture','public');
         }
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Validation Error',
-                'errors' => $validator->errors()
+                'message' => $validator->errors()->first(),
             ], 422);
         }
         $user = User::create([
@@ -44,9 +48,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-    // =========================
-    // Login User
-    // =========================
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(),[
