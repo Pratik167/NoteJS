@@ -4,6 +4,7 @@ const Upload = () => {
 
     const [form, setForm] = useState({
         title: "",
+        faculty: "",
         subject: "",
         semester: "",
         description: "",
@@ -31,6 +32,7 @@ const Upload = () => {
 
         const formData = new FormData();
         formData.append("title", form.title);
+        formData.append("faculty", form.faculty);
         formData.append("subject", form.subject);
         formData.append("semester", form.semester);
         formData.append("description", form.description);
@@ -85,6 +87,36 @@ const Upload = () => {
                         onChange={handleChange}
                         className="w-full border rounded-lg p-3"
                     />
+                    <select
+                        name="faculty"
+                        value={form.faculty}
+                        onChange={handleChange}
+                        className="w-full border rounded-lg p-3"
+                    >
+                        <option value="">Select Faculty</option>
+                        <option value="BIT">BIT</option>
+                        <option value="BCA">BCA</option>
+                        <option value="CSIT">CSIT</option>
+                        <option value="BITM">BITM</option>
+                        <option value="BBA">BBA</option>
+                        <option value="BBS">BBS</option>
+                    </select>
+                    <select
+                        name="semester"
+                        value={form.semester}
+                        onChange={handleChange}
+                        className="w-full border rounded-lg p-3"
+                    >
+                        <option>Select Semester</option>
+                        <option value="1">1st Semester</option>
+                        <option value="2">2nd Semester</option>
+                        <option value="3">3rd Semester</option>
+                        <option value="4">4th Semester</option>
+                        <option value="5">5th Semester</option>
+                        <option value="6">6th Semester</option>
+                        <option value="7">7th Semester</option>
+                        <option value="8">8th Semester</option>
+                    </select>
 
                     <input
                         type="text"
@@ -95,22 +127,7 @@ const Upload = () => {
                         className="w-full border rounded-lg p-3"
                     />
 
-                    <select
-                        name="semester"
-                        value={form.semester}
-                        onChange={handleChange}
-                        className="w-full border rounded-lg p-3"
-                    >
-                        <option value="">Select Semester</option>
-                        <option>1st Semester</option>
-                        <option>2nd Semester</option>
-                        <option>3rd Semester</option>
-                        <option>4th Semester</option>
-                        <option>5th Semester</option>
-                        <option>6th Semester</option>
-                        <option>7th Semester</option>
-                        <option>8th Semester</option>
-                    </select>
+                    
 
                     <textarea
                         rows="5"

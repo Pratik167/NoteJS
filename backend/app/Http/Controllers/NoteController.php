@@ -14,8 +14,9 @@ class NoteController extends Controller
     {
         $request->validate([
             'title' => 'required',
+            'faculty' => 'required|string',
             'subject' => 'required',
-            'semester' => 'required',
+            'semester' => 'required|integer|between:1,8',
             'description' => 'nullable',
             'file' => 'required|file|mimes:pdf|max:10240',
         ]);
@@ -24,6 +25,7 @@ class NoteController extends Controller
 
         $note = Note::create([
             'title' => $request->title,
+            'faculty' => $request->faculty,
             'subject' => $request->subject,
             'semester' => $request->semester,
             'description' => $request->description,

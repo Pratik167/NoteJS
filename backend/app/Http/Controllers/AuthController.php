@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    // =========================
-    // Register User
-    // =========================
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -25,26 +22,34 @@ class AuthController extends Controller
             'email.unique' => 'An account with this email already exists.',
         ]
     ); 
-        $image_path="images/default-avatar.png";
-        if($request->hasFile('profile_picture')){
-            $image_path=$request->file('profile_picture')->store('profile_picture','public');
-        }
-        if ($validator->fails()) {
+    if ($validator->fails()) {
             return response()->json([
                 'message' => $validator->errors()->first(),
             ], 422);
+        }
+        $image_path="images/default-avatar.png";
+        if($request->hasFile('profile_picture')){
+            $image_path=$request->file('profile_picture')->store('profile_picture','public');
         }
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'profile_picture'=>$image_path,
-            // Hash the password
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
         ]);
 
         return response()->json([
             'message' => 'User Registered Successfully',
-            'user' => $user
+            'user' =>['
+            id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'profile_picture' => asset(
+                $user->profile_picture == "images/default-avatar.png"
+                    ? $user->profile_picture
+                    : "storage/" . $user->profile_picture
+            ),
+            ]
         ], 201);
     }
 
@@ -78,7 +83,16 @@ class AuthController extends Controller
 
         return response()->json([
             'message'=>'Login Successful',
-            'user'=>$user
+            'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'profile_picture' => asset(
+                $user->profile_picture == "images/default-avatar.png"
+                    ? $user->profile_picture
+                    : "storage/" . $user->profile_picture
+            ),
+        ]
         ],200);
     }
 }

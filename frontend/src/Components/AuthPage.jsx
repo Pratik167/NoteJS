@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import Img1 from "../Images/google.svg";
 import Img2 from "../Images/github.svg";
-
+import axios from "axios";
+import DefaultAvatar from "../Images/default-avatar.png";
 const AuthPage = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [profilePic, setProfilePic] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -14,7 +17,12 @@ const AuthPage = () => {
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+    const handleImage = (e) => {
+    if (e.target.files[0]) {
+        setImageFile(e.target.files[0]);
+        setProfilePic(URL.createObjectURL(e.target.files[0]));
+    }
+    };
     const validateForm = () => {
         const newErrors = {};
 
@@ -46,12 +54,105 @@ const AuthPage = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            // Here you would make an API call
-            console.log('Form submitted:', formData);
-            alert(isLogin ? 'Login successful!' : 'Account created successfully!');
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    try {
+
+        if (isLogin) {
+
+            const response = await axios.post(
+                "http://127.0.0.1:8000/api/login",
+                {
+                    email: formData.email,
+                    password: formData.password
+                }
+            );
+
+            alert(response.data.message);
+
+            console.log(response.data.user);
+
+            // navigate("/dashboard");
+
+        } else {
+
+            const data = new FormData();
+
+            data.append("name", formData.name);
+            data.append("email", formData.email);
+            data.append("password", formData.password);
+            data.append(
+                "password_confirmation",
+                formData.confirmPassword
+            );
+
+            if (imageFile) {
+                data.append("profile_picture", imageFile);
+            }
+
+            const response = await axios.post(
+                "http://127.0.0.1:8000/api/register",
+                data,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+
+            alert(response.data.message);
+
+            // Switch back to login page
+            setIsLogin(true);
+
+            setFormData({
+                name: "",
+                email: "",
+                password: "",
+                confirmPassword: ""
+            });
+
+            setImageFile(null);
+            setProfilePic(null);
+        }
+
+    } catch (err) {
+
+        if (err.response) {
+
+            if (err.response.data.errors) {
+
+                const validationErrors = {};
+
+                Object.keys(err.response.data.errors).forEach((key) => {
+
+                    if (key === "password_confirmation") {
+                        validationErrors.confirmPassword =
+                            err.response.data.errors[key][0];
+                    } else {
+                        validationErrors[key] =
+                            err.response.data.errors[key][0];
+                    }
+
+                });
+
+                setErrors(validationErrors);
+
+            } else {
+
+                alert(err.response.data.message);
+
+            }
+
+        } else {
+
+            alert("Server not responding.");
+
+            }
+
         }
     };
 
@@ -97,24 +198,32 @@ const AuthPage = () => {
 
                 <div className="p-8">
                     <form onSubmit={handleSubmit}>
-                        {!isLogin && (
-                            <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="name">
-                                    Full Name
-                                </label>
+                    {!isLogin && (
+                        <div className="flex flex-col items-center mb-6">
+
+                            <img
+                                src={profilePic || DefaultAvatar}
+                                alt="Profile Preview"
+                                className="w-28 h-28 rounded-full object-cover border-4 border-blue-100 shadow"
+                            />
+
+                            <label className="mt-4 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg transition">
+                                Choose Profile Picture
+
                                 <input
-                                    className={`appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.name ? 'border-red-500' : 'border-gray-300'
-                                        }`}
-                                    id="name"
-                                    name="name"
-                                    type="text"
-                                    placeholder="John Doe"
-                                    value={formData.name}
-                                    onChange={handleChange}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImage}
+                                    className="hidden"
                                 />
-                                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-                            </div>
-                        )}
+                            </label>
+
+                            <p className="text-sm text-gray-500 mt-2">
+                                Only if you want to 😉
+                            </p>
+
+                        </div>
+                    )}
 
                         <div className="mb-4">
                             <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">

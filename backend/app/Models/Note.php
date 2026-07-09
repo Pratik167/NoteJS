@@ -8,6 +8,7 @@ class Note extends Model
 {
    protected $fillable = [
     'title',
+    'faculty',
     'subject',
     'semester',
     'description',  
