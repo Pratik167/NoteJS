@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import Img1 from "../Images/google.svg";
 import Img2 from "../Images/github.svg";
-import axios from "axios";
+import axios from "../api/axios";
+import { useNavigate } from "react-router-dom";
 import DefaultAvatar from "../Images/default-avatar.png";
 const AuthPage = () => {
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [profilePic, setProfilePic] = useState(null);
     const [imageFile, setImageFile] = useState(null);
@@ -62,20 +64,22 @@ const AuthPage = () => {
     try {
 
         if (isLogin) {
+            
+            await axios.get(
+                "/sanctum/csrf-cookie",
+                
+            );
 
             const response = await axios.post(
-                "http://127.0.0.1:8000/api/login",
+                "/login",
                 {
                     email: formData.email,
                     password: formData.password
-                }
+                },
+                
             );
 
-            alert(response.data.message);
-
-            console.log(response.data.user);
-
-            // navigate("/dashboard");
+            navigate("/");
 
         } else {
 
@@ -94,7 +98,7 @@ const AuthPage = () => {
             }
 
             const response = await axios.post(
-                "http://127.0.0.1:8000/api/register",
+                "http://127.0.0.1:8000/register",
                 data,
                 {
                     headers: {

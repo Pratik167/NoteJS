@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../api/axios";
 const faculties = [
     "BIT",
     "BCA",
@@ -17,7 +17,7 @@ const Notes = () => {
     
     useEffect(() => {
     axios
-        .get("http://127.0.0.1:8000/api/notes")
+        .get("/api/notes")
         .then((res) => {
     console.log(res.data);
     setNotes(res.data);

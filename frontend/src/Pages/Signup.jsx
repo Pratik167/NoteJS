@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../api/axios";
 import DefaultAvatar from "../Images/default-avatar.png";
+import { useNavigate } from "react-router-dom";
 const Signup = () => {
-
+    const navigate = useNavigate();
     const [profilePic, setProfilePic] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [formData,setFormData]=useState({
@@ -42,7 +43,7 @@ const Signup = () => {
                 data.append("profile_picture", imageFile);
             }
              const response = await axios.post(
-            "http://127.0.0.1:8000/api/register",
+            "/register",
             data,
             {
                 headers: {
@@ -51,6 +52,7 @@ const Signup = () => {
             }
         );
         alert(response.data.message);
+        navigate("/login"); 
         } catch (err) {
             if (err.response) {
                 setError(err.response.data.message);

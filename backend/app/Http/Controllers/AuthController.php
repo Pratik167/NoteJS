@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -53,6 +53,7 @@ class AuthController extends Controller
         ], 201);
     }
 
+
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(),[
@@ -81,18 +82,40 @@ class AuthController extends Controller
             ],401);
         }
 
+        Auth::login($user);
+
+        $request->session()->regenerate();
+
         return response()->json([
             'message'=>'Login Successful',
-            'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'profile_picture' => asset(
-                $user->profile_picture == "images/default-avatar.png"
-                    ? $user->profile_picture
-                    : "storage/" . $user->profile_picture
-            ),
-        ]
-        ],200);
+            'user'=>[
+                'id'=>$user->id,
+                'name'=>$user->name,
+                'email'=>$user->email,
+                'profile_picture'=>asset(
+                    $user->profile_picture == "images/default-avatar.png"
+                        ? $user->profile_picture
+                        : "storage/".$user->profile_picture
+                )
+            ]
+        ]);
+    }
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()
+            ->json([
+                'message' => 'Logged out'
+            ])
+            ->withoutCookie('laravel_session')
+            ->withoutCookie('XSRF-TOKEN');
+    }
+    public function user(Request $request)
+    {
+        return response()->json($request->user());
     }
 }

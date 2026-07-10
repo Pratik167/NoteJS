@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../api/axios";
 const Upload = () => {
 
     const [form, setForm] = useState({
@@ -40,7 +40,7 @@ const Upload = () => {
 
         try {
             const res = await axios.post(
-                "http://127.0.0.1:8000/api/notes",
+                "/api/notes",
                 formData,
                 {
                     headers: {
