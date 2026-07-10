@@ -3,11 +3,31 @@ import React, { useState } from 'react';
 import Img3 from "../Images/logo.png";
 
 import { Link, useLocation } from 'react-router-dom';
-
+import axios from "../api/axios";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
+    const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+    useEffect(() => {
 
+        axios.get(
+            "http://127.0.0.1:8000/user",
+            {
+                withCredentials: true,
+                withXSRFToken :true
+            }
+        )
+        .then(res => {
+            setUser(res.data);
+        })
+        .catch(() => {
+            setUser(null);
+        });
+
+    }, []);
 
     const navItems = [
         { id: 'home', label: 'Home', path: '/' },
@@ -16,7 +36,26 @@ const Header = () => {
         { id: 'about', label: 'About', path: '/about us' },
         { id: 'contact', label: 'Contact', path: '/contact' }
     ];
+    const handleLogout = async () => {
 
+        try {
+
+            await axios.post(
+                "/logout",
+                {},
+            );
+
+            setUser(null);
+
+            navigate("/");
+
+        } catch (error) {
+
+            console.log(error);
+
+        }
+
+    };
     return (
         <header className="bg-white shadow-md fixed top-0 w-full z-50">
             <div className="container mx-auto px-3 sm:px-6">
@@ -53,21 +92,45 @@ const Header = () => {
 
 
                     <div className="hidden md:flex items-center space-x-4">
-                        <Link
-                            to="/login"
-                            className="relative group px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-200"
-                        >
-                            <span className="group-hover:text-blue-600">Log in</span>
-                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                        <Link
-                            to="/signup"
-                            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-                        >
-                            Sign up
-                        </Link>
-                    </div>
 
+                        {user ? (
+
+                            <>
+                                <img
+                                    src={user.profile_picture}
+                                    className="w-10 h-10 rounded-full object-cover border"
+                                    alt="Profile"
+                                />
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                                >
+                                    Logout
+                                </button>
+                            </>
+
+                        ) : (
+
+                            <>
+                                <Link
+                                    to="/login"
+                                    className="relative group px-4 py-2 text-sm font-medium text-gray-700"
+                                >
+                                    Log in
+                                </Link>
+
+                                <Link
+                                    to="/signup"
+                                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md"
+                                >
+                                    Sign up
+                                </Link>
+                            </>
+
+                        )}
+
+                    </div>
 
                     <div className="md:hidden">
                         <button
@@ -111,8 +174,8 @@ const Header = () => {
                                     <span>Log in</span>
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
-                                <Link
-                                    to="/signup"
+                                signup<Link
+                                    to="/"
                                     onClick={() => setIsMenuOpen(false)}
                                     className="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 mt-2 transition-colors duration-200 shadow-sm hover:shadow-md"
                                 >
