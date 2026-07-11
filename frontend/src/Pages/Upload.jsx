@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import axios from "../api/axios";
-const Upload = () => {
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
+const Upload = () => {
+    const {user, setUser} = useAuth();
+    const [errors, setErrors] = useState({});
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         title: "",
         faculty: "",
@@ -18,21 +24,68 @@ const Upload = () => {
             ...form,
             [name]: value,
         });
+        setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+    }));
     };
 
     const handleFile = (e) => {
-        setForm({
-            ...form,
-            file: e.target.files[0],
-        });
-    };
+            setForm({
+                ...form,
+                file: e.target.files[0],
+            });
+            setErrors((prev) => ({
+                ...prev,
+                file: "",
+            }));
+        };
+    const validateForm = () => {
+        const validationRules = {
+            title: "Title is required.",
+            faculty: "Please select a faculty.",
+            semester: "Please select a semester.",
+            subject: "Subject is required.",
+            description: "Description is required.",
+        };
 
+        const newErrors = {};
+
+        Object.entries(validationRules).forEach(([field, message]) => {
+            if (!form[field] || !form[field].toString().trim()) {
+                newErrors[field] = message;
+            }
+        });
+
+        if (!form.file) {
+            newErrors.file = "Please upload a PDF.";
+        } else {
+            if (form.file.type !== "application/pdf") {
+                newErrors.file = "Only PDF files are allowed.";
+            }
+
+            if (form.file.size > 10 * 1024 * 1024) {
+                newErrors.file = "File size cannot exceed 10 MB.";
+            }
+        }
+
+        return newErrors;
+    };
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        if (!user) {
+        setShowLoginModal(true);
+        return;
+        }
         const formData = new FormData();
         formData.append("title", form.title);
         formData.append("faculty", form.faculty);
+        formData.append("created_by", user.name);
         formData.append("subject", form.subject);
         formData.append("semester", form.semester);
         formData.append("description", form.description);
@@ -85,13 +138,22 @@ const Upload = () => {
                         placeholder="Note Title"
                         value={form.title}
                         onChange={handleChange}
-                        className="w-full border rounded-lg p-3"
+                        className={`w-full border rounded-lg p-3 border ${
+                            errors.title ? "border-red-500" : "border-gray-300"
+                        }`}
                     />
+                    {errors.title && (
+                        <p className="text-red-500 text-sm mt-1">
+                            {errors.title}
+                        </p>
+                    )}
                     <select
                         name="faculty"
                         value={form.faculty}
                         onChange={handleChange}
-                        className="w-full border rounded-lg p-3"
+                        className={`w-full rounded-lg p-3 border ${
+                            errors.faculty ? "border-red-500" : "border-gray-300"
+                        }`}
                     >
                         <option value="">Select Faculty</option>
                         <option value="BIT">BIT</option>
@@ -101,13 +163,20 @@ const Upload = () => {
                         <option value="BBA">BBA</option>
                         <option value="BBS">BBS</option>
                     </select>
+                    {errors.faculty && (
+    <p className="text-red-500 text-sm mt-1">
+        {errors.faculty}
+    </p>
+)}
                     <select
                         name="semester"
                         value={form.semester}
                         onChange={handleChange}
-                        className="w-full border rounded-lg p-3"
+                        className={`w-full rounded-lg p-3 border ${
+        errors.semester ? "border-red-500" : "border-gray-300"
+    }`}
                     >
-                        <option>Select Semester</option>
+                        <option value="">Select Semester</option>
                         <option value="1">1st Semester</option>
                         <option value="2">2nd Semester</option>
                         <option value="3">3rd Semester</option>
@@ -117,17 +186,27 @@ const Upload = () => {
                         <option value="7">7th Semester</option>
                         <option value="8">8th Semester</option>
                     </select>
-
+                    {errors.semester && (
+    <p className="text-red-500 text-sm mt-1">
+        {errors.semester}
+    </p>
+)}
                     <input
                         type="text"
                         name="subject"
                         placeholder="Subject"
                         value={form.subject}
                         onChange={handleChange}
-                        className="w-full border rounded-lg p-3"
+                        className={`w-full rounded-lg p-3 border ${
+        errors.subject ? "border-red-500" : "border-gray-300"
+    }`}
                     />
 
-                    
+                    {errors.subject && (
+    <p className="text-red-500 text-sm mt-1">
+        {errors.subject}
+    </p>
+)}
 
                     <textarea
                         rows="5"
@@ -138,14 +217,23 @@ const Upload = () => {
                         className="w-full border rounded-lg p-3"
                     />
                     <div>
-                    <label className="cursor-pointer bg-blue-600 text-white px-2 py-3 rounded-lg hover:bg-blue-700 inline-block">
-                📄 Choose PDF
+                    <label className={`cursor-pointer px-2 py-3 rounded-lg inline-block text-white ${
+            errors.file
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-blue-600 hover:bg-blue-700"
+        }`}>
+                        📄 Choose PDF
                     <input
                         type="file"
                         accept=".pdf"
                         onChange={handleFile}
                         className="hidden"
                     />
+                    {errors.file && (
+        <p className="text-red-500 text-sm mt-2">
+            {errors.file}
+        </p>
+    )}
                     </label>
                     {form.file && (
                         <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
@@ -162,7 +250,42 @@ const Upload = () => {
                     >
                         Upload Note
                     </button>
+                    {showLoginModal && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg shadow-lg p-6 w-96">
 
+                                <h2 className="text-xl font-semibold mb-3">
+                                    Login Required
+                                </h2>
+
+                                <p className="text-gray-600 mb-6">
+                                    You must be logged in to upload notes.
+                                </p>
+
+                                <div className="flex justify-end gap-3">
+
+                                    <button
+                                        onClick={() => setShowLoginModal(false)}
+                                        className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            setShowLoginModal(false);
+                                            navigate("/login");
+                                        }}
+                                        className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                                    >
+                                        Login
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
                 </form>
 
             </div>

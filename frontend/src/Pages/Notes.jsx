@@ -115,7 +115,7 @@ console.log(typeof notes[0]?.semester, notes[0]?.semester);
             <p className="text-gray-600 mt-1">
                 {note.subject}
             </p>
-
+        
             <div className="flex gap-3 mt-3">
 
                 <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
@@ -125,9 +125,10 @@ console.log(typeof notes[0]?.semester, notes[0]?.semester);
                 <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                     Semester {note.semester}
                 </span>
-
             </div>
-
+            <p className="text-gray-600 mt-1">
+                Created By :{note.created_by}
+            </p>
             {note.description && (
                 <p className="mt-4 text-gray-700">
                     {note.description}
@@ -136,22 +137,22 @@ console.log(typeof notes[0]?.semester, notes[0]?.semester);
 
         </div>
 
+        </div>
+
+        <div className="mt-6">
+
+            <a
+                href={`http://127.0.0.1:8000/storage/${note.file}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition"
+            >
+                View PDF
+            </a>
+
+        </div>
+
     </div>
-
-    <div className="mt-6">
-
-        <a
-            href={`http://127.0.0.1:8000/storage/${note.file}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg transition"
-        >
-            View PDF
-        </a>
-
-    </div>
-
-</div>
 
     ))}
 

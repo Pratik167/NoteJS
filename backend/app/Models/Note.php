@@ -9,6 +9,7 @@ class Note extends Model
    protected $fillable = [
     'title',
     'faculty',
+    'created_by',
     'subject',
     'semester',
     'description',  

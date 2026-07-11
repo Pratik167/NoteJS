@@ -98,7 +98,7 @@ class AuthController extends Controller
                         : "storage/".$user->profile_picture
                 )
             ]
-        ]);
+        ],200);
     }
     public function logout(Request $request)
     {

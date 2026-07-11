@@ -5,11 +5,13 @@ import Img2 from "../Images/github.svg";
 import axios from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import DefaultAvatar from "../Images/default-avatar.png";
+import { useAuth } from "../context/AuthContext";
 const AuthPage = () => {
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [profilePic, setProfilePic] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const { setUser } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -78,7 +80,7 @@ const AuthPage = () => {
                 },
                 
             );
-
+            setUser(response.data.user);
             navigate("/");
 
         } else {
