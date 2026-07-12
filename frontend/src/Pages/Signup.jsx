@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import axios from "../api/axios";
 import DefaultAvatar from "../Images/default-avatar.png";
-import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "../context/AuthContext";   
 const Signup = () => {
-    const navigate = useNavigate();
+
     const [profilePic, setProfilePic] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [formData,setFormData]=useState({

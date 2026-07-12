@@ -27,7 +27,7 @@ class NoteController extends Controller
         $note = Note::create([
             'title' => $request->title,
             'faculty' => $request->faculty,
-            'created_by'=>$request->created_b,
+            'created_by'=>$request->user()->name,
             'subject' => $request->subject,
             'semester' => $request->semester,
             'description' => $request->description,
