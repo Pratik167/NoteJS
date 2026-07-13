@@ -13,6 +13,7 @@ import Login from './Pages/Login';
 import Signup from './Pages/Signup';
 import Upload from './Pages/Upload';
 import Notes from './Pages/Notes'
+import MyNotes from './pages/MyNotes';
 function App() {
   return (
     <Router>
@@ -30,6 +31,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/notes" element={<Notes />} />
+            <Route path="/my-notes" element={<MyNotes />} />
           </Routes>
         </main>
       </div>

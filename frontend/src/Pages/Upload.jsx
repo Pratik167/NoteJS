@@ -17,13 +17,7 @@ const Upload = () => {
         description: "",
         file: null,
     });
-    useEffect(() => {
-        console.log("Upload mounted");
-    }, []);
-
-    useEffect(() => {
-        console.log("User changed:", user);
-    }, [user]);
+   
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -122,7 +116,7 @@ const Upload = () => {
 
             if (err.response) {
                 console.log("STATUS:", err.response.status);
-                console.log("DATA:", err.response.data);
+                console.log(err.response.data.errors);
                 console.log("HEADERS:", err.response.headers);
             } else if (err.request) {
                 console.log("NO RESPONSE FROM SERVER");
