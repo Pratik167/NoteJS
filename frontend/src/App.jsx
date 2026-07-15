@@ -12,8 +12,9 @@ import Contact from './Pages/Contact';
 import Login from './Pages/Login';
 import Signup from './Pages/Signup';
 import Upload from './Pages/Upload';
-import Notes from './Pages/Notes'
-import MyNotes from './pages/MyNotes';
+import Notes from './Pages/Notes';
+import MyNotes from './Pages/MyNotes';
+
 function App() {
   return (
     <Router>

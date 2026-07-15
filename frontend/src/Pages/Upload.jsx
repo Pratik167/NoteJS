@@ -3,7 +3,6 @@ import axios from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
 import LoginForm from "../Components/LoginForm";
-import { useEffect } from "react";
 const Upload = () => {
     
     const {user} = useAuth();
@@ -17,7 +16,7 @@ const Upload = () => {
         description: "",
         file: null,
     });
-   
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -30,7 +29,6 @@ const Upload = () => {
         [name]: "",
     }));
     };
-
     const handleFile = (e) => {
             setForm({
                 ...form,
