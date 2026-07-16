@@ -6,6 +6,17 @@ export default function MyNotes() {
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState(null);
+    const [editingNote, setEditingNote] = useState(null);
+    const [editForm, setEditForm] = useState({
+        title: "",
+        faculty: "",
+        subject: "",
+        semester: "",
+        description: "",
+        file: null,
+    });
+    const [editErrors, setEditErrors] = useState({});
+    const [savingEdit, setSavingEdit] = useState(false);
 
     useEffect(() => {
         axios
@@ -38,8 +49,73 @@ export default function MyNotes() {
         }
     };
 
+    const openEditModal = (note) => {
+        setEditingNote(note);
+        setEditForm({
+            title: note.title || "",
+            faculty: note.faculty || "",
+            subject: note.subject || "",
+            semester: note.semester || "",
+            description: note.description || "",
+            file: null,
+        });
+        setEditErrors({});
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditForm((prev) => ({ ...prev, [name]: value }));
+        setEditErrors((prev) => ({ ...prev, [name]: "" }));
+    };
+
+    const handleEditFile = (e) => {
+        setEditForm((prev) => ({ ...prev, file: e.target.files[0] }));
+        setEditErrors((prev) => ({ ...prev, file: "" }));
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        setSavingEdit(true);
+        setEditErrors({});
+
+        const data = new FormData();
+        data.append("title", editForm.title);
+        data.append("faculty", editForm.faculty);
+        data.append("subject", editForm.subject);
+        data.append("semester", editForm.semester);
+        data.append("description", editForm.description);
+        if (editForm.file) {
+            data.append("file", editForm.file);
+        }
+
+        try {
+            const res = await axios.post(`/notes/${editingNote.id}`, data, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            setNotes((prev) =>
+                prev.map((n) => (n.id === editingNote.id ? res.data.note : n))
+            );
+            setEditingNote(null);
+        } catch (err) {
+            console.error(err);
+            if (err.response?.data?.errors) {
+                const errs = {};
+                Object.keys(err.response.data.errors).forEach((key) => {
+                    errs[key] = err.response.data.errors[key][0];
+                });
+                setEditErrors(errs);
+            } else {
+                alert("Failed to update note.");
+            }
+        } finally {
+            setSavingEdit(false);
+        }
+    };
+
     const filteredNotes = notes.filter((note) =>
         note.title.toLowerCase().includes(search.toLowerCase())
+        || note.subject.toLowerCase().includes(search.toLowerCase())
     );
 
     if (loading) {
@@ -121,6 +197,7 @@ export default function MyNotes() {
                                 )}
 
                                 <button
+                                    onClick={() => openEditModal(note)}
                                     className="bg-yellow-500 text-white px-5 py-2 rounded-lg hover:bg-yellow-600"
                                 >
                                     Edit
@@ -147,6 +224,124 @@ export default function MyNotes() {
                     )}
 
                 </div>
+
+                {editingNote && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                            <h2 className="text-2xl font-semibold mb-4">Edit Note</h2>
+
+                            <form onSubmit={handleEditSubmit} className="space-y-4">
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        placeholder="Note Title"
+                                        value={editForm.title}
+                                        onChange={handleEditChange}
+                                        className={`w-full border rounded-lg p-3 ${
+                                            editErrors.title ? "border-red-500" : "border-gray-300"
+                                        }`}
+                                    />
+                                    {editErrors.title && <p className="text-red-500 text-sm mt-1">{editErrors.title}</p>}
+                                </div>
+
+                                <div>
+                                    <select
+                                        name="faculty"
+                                        value={editForm.faculty}
+                                        onChange={handleEditChange}
+                                        className={`w-full rounded-lg p-3 border ${
+                                            editErrors.faculty ? "border-red-500" : "border-gray-300"
+                                        }`}
+                                    >
+                                        <option value="">Select Faculty</option>
+                                        <option value="BIT">BIT</option>
+                                        <option value="BCA">BCA</option>
+                                        <option value="CSIT">CSIT</option>
+                                        <option value="BITM">BITM</option>
+                                        <option value="BBA">BBA</option>
+                                        <option value="BBS">BBS</option>
+                                    </select>
+                                    {editErrors.faculty && <p className="text-red-500 text-sm mt-1">{editErrors.faculty}</p>}
+                                </div>
+
+                                <div>
+                                    <select
+                                        name="semester"
+                                        value={editForm.semester}
+                                        onChange={handleEditChange}
+                                        className={`w-full rounded-lg p-3 border ${
+                                            editErrors.semester ? "border-red-500" : "border-gray-300"
+                                        }`}
+                                    >
+                                        <option value="">Select Semester</option>
+                                        {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                                            <option key={s} value={s}>{s} Semester</option>
+                                        ))}
+                                    </select>
+                                    {editErrors.semester && <p className="text-red-500 text-sm mt-1">{editErrors.semester}</p>}
+                                </div>
+
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="subject"
+                                        placeholder="Subject"
+                                        value={editForm.subject}
+                                        onChange={handleEditChange}
+                                        className={`w-full rounded-lg p-3 border ${
+                                            editErrors.subject ? "border-red-500" : "border-gray-300"
+                                        }`}
+                                    />
+                                    {editErrors.subject && <p className="text-red-500 text-sm mt-1">{editErrors.subject}</p>}
+                                </div>
+
+                                <textarea
+                                    rows="4"
+                                    name="description"
+                                    placeholder="Description..."
+                                    value={editForm.description}
+                                    onChange={handleEditChange}
+                                    className="w-full border rounded-lg p-3 border-gray-300"
+                                />
+
+                                <div>
+                                    <label className="cursor-pointer px-4 py-2 rounded-lg inline-block text-white bg-blue-600 hover:bg-blue-700">
+                                        📄 Replace PDF
+                                        <input
+                                            type="file"
+                                            accept=".pdf"
+                                            onChange={handleEditFile}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                    {editForm.file && (
+                                        <p className="text-green-700 mt-2 text-sm">✅ {editForm.file.name}</p>
+                                    )}
+                                    {editErrors.file && <p className="text-red-500 text-sm mt-1">{editErrors.file}</p>}
+                                </div>
+
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        type="submit"
+                                        disabled={savingEdit}
+                                        className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-5 py-2 rounded-lg flex-1"
+                                    >
+                                        {savingEdit ? "Saving..." : "Save Changes"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditingNote(null)}
+                                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded-lg"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
             </div>
         </div>
     );
