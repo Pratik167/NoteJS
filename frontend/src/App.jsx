@@ -13,6 +13,7 @@ import Upload from './Pages/Upload';
 import Notes from './Pages/Notes';
 import MyNotes from './Pages/MyNotes';
 import ForgotPassword from './Pages/ForgotPass';
+import Otp from './Pages/Otp'
 function App() {
   return (
     <Router>
@@ -29,6 +30,7 @@ function App() {
             <Route path="/upload" element={<Upload />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/my-notes" element={<MyNotes />} />
+            <Route path="/otp" element={<Otp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
           </Routes>
         </main>

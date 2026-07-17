@@ -7,6 +7,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\RegistrationOtpNotification;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -26,33 +31,105 @@ class AuthController extends Controller
             return response()->json([
                 'message' => $validator->errors()->first(),
             ], 422);
-        }
-        $image_path="images/default-avatar.png";
-        if($request->hasFile('profile_picture')){
-            $image_path=$request->file('profile_picture')->store('profile_picture','public');
-        }
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'profile_picture'=>$image_path,
-            'password' => $request->password,
-        ]);
+    }
+    $image_path="images/default-avatar.png";
+    if($request->hasFile('profile_picture')){
+        $image_path=$request->file('profile_picture')->store('profile_picture','public');
+    }
+    $otp = (string) random_int(100000, 999999);
+    Cache::put('registration_pending_' . $request->email, [
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => $request->password,
+        'profile_picture' => $image_path,
+    ], now()->addMinutes(10));
+    Cache::put('registration_otp_' . $request->email, $otp, now()->addMinutes(10));
+    Notification::route('mail', $request->email)
+            ->notify(new RegistrationOtpNotification($otp));
 
         return response()->json([
-            'message' => 'User Registered Successfully',
-            'user' =>[
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'profile_picture' => asset(
-                $user->profile_picture == "images/default-avatar.png"
-                    ? $user->profile_picture
-                    : "storage/" . $user->profile_picture
-            ),
+            'message' => 'Verification code sent to your email.',
+            'email' => $request->email,
+        ], 200);
+    }
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        $cachedOtp = Cache::get('registration_otp_' . $request->email);
+        $pendingData = Cache::get('registration_pending_' . $request->email);
+
+        if (!$cachedOtp || !$pendingData) {
+            return response()->json([
+                'message' => 'Verification session expired. Please register again.',
+            ], 410);
+        }
+        if ($cachedOtp !== $request->otp) {
+            return response()->json([
+                'message' => 'Invalid verification code.',
+                'otp'=>$cachedOtp,
+            ], 401);
+        }
+
+        $user = User::create([
+            'name' => $pendingData['name'],
+            'email' => $pendingData['email'],
+            'password' => $pendingData['password'], 
+            'profile_picture' => $pendingData['profile_picture'],
+            'email_verified_at' => now(), 
+        ]);
+
+        Cache::forget('registration_otp_' . $request->email);
+        Cache::forget('registration_pending_' . $request->email);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'message' => 'Email verified and account created successfully.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'profile_picture' => asset(
+                    $user->profile_picture == "images/default-avatar.png"
+                        ? $user->profile_picture
+                        : "storage/" . $user->profile_picture
+                ),
             ]
         ], 201);
     }
 
+    // Optional: resend OTP
+    public function resendOtp(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $pendingData = Cache::get('registration_pending_' . $request->email);
+
+        if (!$pendingData) {
+            return response()->json([
+                'message' => 'No pending registration found. Please start again.',
+            ], 404);
+        }
+
+        $otp = (string) random_int(100000, 999999);
+        Cache::put('registration_otp_' . $request->email, $otp, now()->addMinutes(10));
+
+        Notification::route('mail', $request->email)
+            ->notify(new RegistrationOtpNotification($otp));
+
+        return response()->json(['message' => 'A new code has been sent.'], 200);
+    }
 
     public function login(Request $request)
     {

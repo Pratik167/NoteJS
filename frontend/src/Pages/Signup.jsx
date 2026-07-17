@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import axios from "../api/axios";
 import DefaultAvatar from "../Images/default-avatar.png";
-
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";   
 const Signup = () => {
-
+    const navigate = useNavigate()
     const [profilePic, setProfilePic] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [formData,setFormData]=useState({
@@ -43,7 +43,7 @@ const Signup = () => {
             if (imageFile) {
                 data.append("profile_picture", imageFile);
             }
-             const response = await axios.post(
+            const response = await axios.post(
             "/register",
             data,
             {
@@ -52,8 +52,12 @@ const Signup = () => {
                 },
             }
         );
-        alert(response.data.message);
-        navigate("/login"); 
+        console.log(response.data)
+        navigate("/otp", {
+            state: {
+                email: response.data.email
+            }
+        });
         } catch (err) {
             if (err.response) {
                 setError(err.response.data.message);

@@ -26,3 +26,15 @@ Route::middleware('auth')->get('/user', function (Request $request) {
 Route::get('/notes/my-notes', [NoteController::class,'myNotes']);
 Route::delete('/notes/{note}', [NoteController::class,'destroy']);
 Route::post('/notes/{note}', [NoteController::class, 'update']);
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+});
+Route::post('/register/send-otp', [AuthController::class, 'sendOtp']);
+Route::post('/register/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/register/resend-otp', [AuthController::class, 'resendOtp']);
