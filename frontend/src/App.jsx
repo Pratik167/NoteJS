@@ -14,6 +14,7 @@ import Signup from './Pages/Signup';
 import Upload from './Pages/Upload';
 import Notes from './Pages/Notes';
 import MyNotes from './Pages/MyNotes';
+import ForgotPass from "./Pages/ForgotPass";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/upload" element={<Upload />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/my-notes" element={<MyNotes />} />
+            <Route path="/forgot-password" element={<ForgotPass />} />
           </Routes>
         </main>
       </div>

@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import React, { useState } from 'react';
 import Img1 from "../Images/google.svg";
 import Img2 from "../Images/github.svg";
@@ -351,9 +351,12 @@ const AuthPage = () => {
 
                             {isLogin && (
                                 <div className="text-sm">
-                                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                        Forgot password?
-                                    </a>
+                                    <Link
+                                        to="/forgot-password"
+                                        className="text-sm text-blue-600 hover:underline"
+                                        >
+                                     Forgot Password?
+                                    </Link>
                                 </div>
                             )}
                         </div>
