@@ -1,41 +1,27 @@
-import React from "react";
+import React,{useState,useEffect}from "react";
 import { Link } from "react-router-dom";
-
+import axios from "../api/axios";
 /**
  * Sample cards shown in the hero's fanned stack. Swap these for
  * a lightweight /api/notes?limit=3 call later if you want it live.
  */
-const previewNotes = [
-    {
-        title: "Data Structures — Linked Lists",
-        subject: "DSA",
-        faculty: "BIT",
-        semester: 3,
-        pages: 12,
-    },
-    {
-        title: "Operating Systems Midterm Notes",
-        subject: "OS",
-        faculty: "CSIT",
-        semester: 5,
-        pages: 8,
-    },
-    {
-        title: "Digital Logic — Karnaugh Maps",
-        subject: "DLD",
-        faculty: "BIT",
-        semester: 2,
-        pages: 6,
-    },
-];
-
-const stats = [
-    { label: "Notes shared", value: "counting" }, /*baidhyaaaaaaaaaaaaaa  here add a variable to count no of uploaded notes */
-    { label: "Faculties", value: "6" },
-    { label: "Semesters", value: "1–8" },
-];
 
 const Hero = () => {
+    const [notes, setNotes] = useState([]);
+    useEffect(() => {
+    axios.get("/api/notes")
+        .then(res => setNotes(res.data))
+        .catch((err) => {
+            console.error(err);
+        });
+    }, []);
+    const totalNotes=notes.length;
+    const previewNotes=notes.slice(0,3);
+    const stats = [
+    { label: "Notes shared", value: totalNotes }, /*baidhyaaaaaaaaaaaaaa  here add a variable to count no of uploaded notes */
+    { label: "Faculties", value: "6" },
+    { label: "Semesters", value: "1–8" },
+    ];
     return (
         <section className="relative overflow-hidden bg-[#EEF1F6] min-h-screen flex items-center">
             {/* Ruled notebook-paper backdrop */}
