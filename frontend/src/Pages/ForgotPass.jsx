@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { Link } from "react-router-dom";
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
 
@@ -47,7 +47,12 @@ export default function ForgotPassword() {
                     >
                         Send Reset Link
                     </button>
-
+                        <Link
+                        to="/otp"
+                        className="w-full bg-indigo-600 text-white py-3 rounded-lg text-center block hover:bg-indigo-700 transition"
+                    >
+                     Send OTP
+                    </Link>
                 </form>
 
                 <div className="text-center mt-6">
