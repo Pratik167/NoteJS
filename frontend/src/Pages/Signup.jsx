@@ -55,7 +55,8 @@ const Signup = () => {
         console.log(response.data)
         navigate("/otp", {
             state: {
-                email: response.data.email
+                email: response.data.email,
+                type: "register"
             }
         });
         } catch (err) {

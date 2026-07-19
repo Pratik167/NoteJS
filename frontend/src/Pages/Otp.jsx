@@ -9,7 +9,7 @@ const Otp = () => {
     const [timer, setTimer] = useState(600);
     const inputs = useRef([]);
     const location = useLocation();
-    const email = location.state?.email || "";
+    const {email,type} = location.state;
     useEffect(() => {
         if (timer === 0) return;
 
@@ -46,11 +46,12 @@ const Otp = () => {
     };
 
     const resendOTP = async() => {
+        const endpoint=type==="register"?"/register/resend-otp":"/forgot-password/verify-otp";
         setOtp(["", "", "", "", "", ""]);
         setTimer(60);
         inputs.current[0].focus();
         try{
-            await axios.post("/register/resend-otp",{email});
+            await axios.post(endpoint,{email});
             setOtp(["","","","","",""]);
         setTimer(60);
         inputs.current[0].focus();
@@ -61,18 +62,19 @@ const Otp = () => {
 
     const verifyOTP = async() => {
         const code = otp.join("");
-        console.log("OTP:", code);
-        console.log("Email",email);
+        const endpoint = type === "register"?"/register/verify-otp":"/forgot-password/verify-otp";
         try {
-            const response = await axios.post("/register/verify-otp", {
+            const response = await axios.post(endpoint, {
             email,
             otp: code
         });
 
         alert(response.data.message);
-
-        // If verification succeeds
-        navigate("/login");
+        if (type === "register") {
+            navigate("/login");
+        } else {
+            navigate("/newpassword", { state: { email } });
+        }
         } catch (err) {
             alert(err.response?.data?.message || "Invalid OTP");
         }

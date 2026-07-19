@@ -11,7 +11,9 @@ return [
     'user',
     'notes/*',
     'register/*',
-    'register'
+    'register',
+    'forgot-password/*',
+    'resetpassword'
     ],
 
     'allowed_methods' => ['*'],

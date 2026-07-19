@@ -17,34 +17,34 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:users,name',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
-            'profile_picture' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
-        ],
-        [
-            'name.unique' => 'This username is already taken.',
-            'email.unique' => 'An account with this email already exists.',
-        ]
-    ); 
-    if ($validator->fails()) {
-            return response()->json([
-                'message' => $validator->errors()->first(),
-            ], 422);
-    }
-    $image_path="images/default-avatar.png";
-    if($request->hasFile('profile_picture')){
-        $image_path=$request->file('profile_picture')->store('profile_picture','public');
-    }
-    $otp = (string) random_int(100000, 999999);
-    Cache::put('registration_pending_' . $request->email, [
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => $request->password,
-        'profile_picture' => $image_path,
-    ], now()->addMinutes(10));
-    Cache::put('registration_otp_' . $request->email, $otp, now()->addMinutes(10));
-    Notification::route('mail', $request->email)
+                'name' => 'required|string|max:255|unique:users,name',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6|confirmed',
+                'profile_picture' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
+            ],
+            [
+                'name.unique' => 'This username is already taken.',
+                'email.unique' => 'An account with this email already exists.',
+            ]
+        ); 
+        if ($validator->fails()) {
+                return response()->json([
+                    'message' => $validator->errors()->first(),
+                ], 422);
+        }
+        $image_path="images/default-avatar.png";
+        if($request->hasFile('profile_picture')){
+            $image_path=$request->file('profile_picture')->store('profile_picture','public');
+        }
+        $otp = (string) random_int(100000, 999999);
+        Cache::put('registration_pending_' . $request->email, [
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password,
+            'profile_picture' => $image_path,
+        ], now()->addMinutes(10));
+        Cache::put('registration_otp_' . $request->email, $otp, now()->addMinutes(10));
+        Notification::route('mail', $request->email)
             ->notify(new RegistrationOtpNotification($otp));
 
         return response()->json([
@@ -108,8 +108,6 @@ class AuthController extends Controller
             ]
         ], 201);
     }
-
-    // Optional: resend OTP
     public function resendOtp(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -130,7 +128,88 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'A new code has been sent.'], 200);
     }
+    public function forgotPassword(Request $request){
+        $request->validate(['email'=>'required|email']);
+        $user =User::where('email',$request->email)->first();
+        if(!$user){
+            return response()->json(['message'=>"Email doesnot exist"],404);
+        }
+        $otp = (string) random_int(100000, 999999);
+        Cache::put('password_reset_otp_'.$request->email,$otp,now()->addMinutes(10));
+        Notification::route('mail',$request->email)
+            ->notify(new RegistrationOtpNotification($otp));
+        return response()->json([
+            'message'=>'Otp Sent',
+            'email'=>$request->email,
+        ],200);
+    }
+    public function verifyForgotPasswordOtp(Request $request)
+    {
+        $request->validate([
+            'email'=>'required|email',
+            'otp'=>'required|digits:6'
+        ]);
 
+        $cachedOtp = Cache::get(
+            'password_reset_otp_'.$request->email
+        );
+
+        if(!$cachedOtp){
+            return response()->json([
+                'message'=>'OTP expired.'
+            ],410);
+        }
+
+        if($cachedOtp != $request->otp){
+            return response()->json([
+                'message'=>'Invalid OTP.'
+            ],401);
+        }
+
+        Cache::put(
+            'password_reset_verified_'.$request->email,
+            true,
+            now()->addMinutes(10)
+        );
+
+        Cache::forget(
+            'password_reset_otp_'.$request->email
+        );
+
+        return response()->json([
+            'message'=>'OTP verified.'
+        ]);
+    }
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email'=>'required|email',
+            'password'=>'required|confirmed|min:6'
+        ]);
+
+        if(!Cache::get('password_reset_verified_'.$request->email)){
+            return response()->json([
+                'message'=>'OTP verification required.'
+            ],403);
+        }
+
+        $user = User::where('email',$request->email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $user->password = Hash::make($request->password);
+
+        $user->save();
+
+        Cache::forget(
+            'password_reset_verified_'.$request->email
+        );
+
+        return response()->json([
+            'message'=>'Password changed successfully.'
+        ]);
+    }
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(),[
