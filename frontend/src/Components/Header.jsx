@@ -36,7 +36,6 @@ const Header = () => {
         { id: 'MyNotes', label: 'MyNotes', path: '/my-notes' },
         { id: 'blog', label: 'Upload', path: '/upload' },
         { id: 'about', label: 'About', path: '/about' },
-        { id: 'contact', label: 'Contact', path: '/contact' }
     ];
     const handleLogout = async () => {
 
@@ -176,7 +175,7 @@ const Header = () => {
                                     <span>Log in</span>
                                     <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 transition-all duration-300 group-hover:w-full"></span>
                                 </Link>
-                                signup<Link
+                                <Link
                                     to="/"
                                     onClick={() => setIsMenuOpen(false)}
                                     className="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 mt-2 transition-colors duration-200 shadow-sm hover:shadow-md"

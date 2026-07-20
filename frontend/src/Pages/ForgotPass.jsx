@@ -1,13 +1,22 @@
 import { useState } from "react";
-
+import axios from "../api/axios";
+import { useNavigate } from "react-router-dom";
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
-
-    const handleSubmit = (e) => {
+    const [error, setError] = useState("");
+    const navigate=useNavigate();
+    const handleSubmit = async(e) => {
         e.preventDefault();
-
-        // Backend will be added later
-        console.log("Reset password for:", email);
+        try{const response = await axios.post("/forgot-password/otp", { email });
+        navigate("/otp", {
+            state: {
+                email: email,
+                type:'forgot-password'
+            }
+        });}
+        catch(err){
+            setError(err.response?.data?.message || "Something went wrong. Please try again.");
+        }
     };
 
     return (
@@ -45,7 +54,7 @@ export default function ForgotPassword() {
                         type="submit"
                         className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
                     >
-                        Send Reset Link
+                        Send Otp
                     </button>
 
                 </form>
