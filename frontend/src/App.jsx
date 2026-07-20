@@ -13,8 +13,8 @@ import Upload from './Pages/Upload';
 import Notes from './Pages/Notes';
 import MyNotes from './Pages/MyNotes';
 import ForgotPass from "./Pages/ForgotPass";
+import NewPassword from "./Pages/NewPassword";
 import Otp from "./Pages/Otp";
-
 function App() {
   return (
     <Router>
@@ -24,15 +24,16 @@ function App() {
         <main className="pt-20 px-6">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/upload" element={<Upload />} />
-            <Route path="/notes" element={<Notes />} />
-            <Route path="/my-notes" element={<MyNotes />} />
-            <Route path="/forgot-password" element={<ForgotPass />} />
-            <Route path="/otp" element={<Otp />} />
+<Route path="/about" element={<About />} />
+<Route path="/contact" element={<Contact />} />
+<Route path="/login" element={<Login />} />
+<Route path="/signup" element={<Signup />} />
+<Route path="/upload" element={<Upload />} />
+<Route path="/notes" element={<Notes />} />
+<Route path="/my-notes" element={<MyNotes />} />
+<Route path="/forgot-password" element={<ForgotPass />} />
+<Route path="/otp" element={<Otp />} />
+<Route path="/newpassword" element={<NewPassword />} />
           </Routes>
         </main>
       </div>

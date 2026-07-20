@@ -44,3 +44,8 @@ Route::middleware([
 Route::post('/register/send-otp', [AuthController::class, 'sendOtp']);
 Route::post('/register/verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('/register/resend-otp', [AuthController::class, 'resendOtp']);
+
+Route::post('/forgot-password/send-otp', [AuthController::class, 'sendOtp']);
+Route::post('/forgot-password/verify-otp', [AuthController::class, 'verifyOtp']);
+Route::post('/forgot-password/otp', [AuthController::class, 'forgotPassword']);
+Route::post('/resetpassword', [AuthController::class, 'resetPassword']);
